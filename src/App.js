@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 
 function App() {
@@ -25,14 +27,16 @@ function App() {
     if (input.trim() !== '') {
       try {
         await axios.post('http://localhost:5000/tasks', { title: input });
-        setInput(''); // Clear the input field
-        fetchTasks(); // Refresh the task list
+        setInput('');
+        fetchTasks();
+        toast.success('Task added successfully!');
       } catch (error) {
         console.error('Error adding task:', error);
+        toast.error('Failed to add task. Please try again.');
       }
     }
   };
-
+  
   // Toggle task completion status
   const toggleComplete = async (id, completed) => {
     try {
