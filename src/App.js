@@ -2,40 +2,62 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 function App() {
-  const [tasks, setTasks] = useState([]);
-  const [input, setInput] = useState('');
+  const [tasks, setTasks] = useState([]); // State to store tasks
+  const [input, setInput] = useState(''); // State for input field
 
+  // Fetch tasks from the backend
   const fetchTasks = async () => {
-    const response = await axios.get('http://localhost:5000/tasks');
-    setTasks(response.data);
+    try {
+      const response = await axios.get('http://localhost:5000/tasks');
+      setTasks(response.data);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
   };
 
+  // Fetch tasks when the component mounts
   useEffect(() => {
     fetchTasks();
   }, []);
 
+  // Add a new task
   const addTask = async () => {
     if (input.trim() !== '') {
-      await axios.post('http://localhost:5000/tasks', { title: input });
-      setInput('');
-      fetchTasks();
+      try {
+        await axios.post('http://localhost:5000/tasks', { title: input });
+        setInput(''); // Clear the input field
+        fetchTasks(); // Refresh the task list
+      } catch (error) {
+        console.error('Error adding task:', error);
+      }
     }
   };
 
+  // Toggle task completion status
   const toggleComplete = async (id, completed) => {
-    await axios.put(`http://localhost:5000/tasks/${id}`, { completed: !completed });
-    fetchTasks();
+    try {
+      await axios.put(`http://localhost:5000/tasks/${id}`, { completed: !completed });
+      fetchTasks(); // Refresh the task list
+    } catch (error) {
+      console.error('Error updating task:', error);
+    }
   };
 
+  // Delete a task
   const deleteTask = async (id) => {
-    await axios.delete(`http://localhost:5000/tasks/${id}`);
-    fetchTasks();
+    try {
+      await axios.delete(`http://localhost:5000/tasks/${id}`);
+      fetchTasks(); // Refresh the task list
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
   };
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
       <h1>Task Manager</h1>
 
+      {/* Input Field and Add Button */}
       <div style={{ display: 'flex', marginBottom: '20px' }}>
         <input
           type="text"
@@ -65,6 +87,7 @@ function App() {
         </button>
       </div>
 
+      {/* Task List */}
       <ul style={{ listStyleType: 'none', padding: 0 }}>
         {tasks.map((task) => (
           <li
@@ -79,15 +102,18 @@ function App() {
               backgroundColor: task.completed ? '#e6ffe6' : '#fff',
             }}
           >
+            {/* Checkbox for Task Completion */}
             <input
               type="checkbox"
               checked={task.completed}
               onChange={() => toggleComplete(task.id, task.completed)}
               style={{ marginRight: '10px' }}
             />
+            {/* Task Title */}
             <span style={{ flexGrow: 1, textDecoration: task.completed ? 'line-through' : 'none' }}>
               {task.title}
             </span>
+            {/* Delete Button */}
             <button
               onClick={() => deleteTask(task.id)}
               style={{
